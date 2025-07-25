@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify
 import yfinance as yf
+from datetime import datetime
+import time
 
 app = Flask(__name__)
 
@@ -46,3 +48,37 @@ def get_stock_price():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/history', methods=['GET'])
+def get_stock_history():
+    symbol = request.args.get('symbol')
+    period = request.args.get('period', default='5d')       # default: 5 days
+    interval = request.args.get('interval', default='1h')   # default: 1 hour
+
+    if not symbol:
+        return jsonify({'error': 'Missing symbol parameter'}), 400
+
+    try:
+        ticker = yf.Ticker(symbol)
+        hist = ticker.history(period=period, interval=interval)
+
+        if hist.empty:
+            return jsonify({'error': 'No historical data available'}), 404
+
+        history_data = []
+        for index, row in hist.iterrows():
+            history_data.append({
+                'timestamp': int(index.timestamp()),
+                'price': row['Close']
+            })
+
+        return jsonify({
+            'symbol': symbol.upper(),
+            'period': period,
+            'interval': interval,
+            'data': history_data
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
