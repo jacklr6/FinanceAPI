@@ -23,6 +23,7 @@ def get_stock_price():
         # Expanded data
         data = {
             'symbol': symbol.upper(),
+            'longName': info.get('longName'),
             'current_price': info.get('regularMarketPrice'),
             'previous_close': info.get('previousClose'),
             'open': info.get('open'),
