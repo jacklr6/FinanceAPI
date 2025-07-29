@@ -47,6 +47,11 @@ def get_stock_price():
             'industry': info.get('industry'),
             'longBusinessSummary': info.get('longBusinessSummary'),
             'website': info.get('website'),
+            'address1': info.get('address1'),
+            'city': info.get('city'),
+            'state': info.get('state'),
+            'zip': info.get('zip'),
+            'country': info.get('country'),
             'timestamp': info.get('regularMarketTime'),
             'last_close_from_history': last_close
         }
