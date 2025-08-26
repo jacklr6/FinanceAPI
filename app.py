@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 import yfinance as yf
 from datetime import datetime
 import time
-import pytz
+import pandas_market_calendars as mcal
 
 app = Flask(__name__)
 
@@ -97,13 +97,15 @@ def get_stock_history():
         return jsonify({'error': str(e)}), 500
 
 def is_market_open():
+    nyse = mcal.get_calendar('NYSE')
     eastern = pytz.timezone('US/Eastern')
     now = datetime.now(eastern)
 
-    if now.weekday() >= 5:  # Sat/Sun
-        return False
+    schedule = nyse.schedule(start_date=now.date(), end_date=now.date())
+    if schedule.empty:
+        return False  # holiday/weekend
 
-    market_open = now.replace(hour=9, minute=30, second=0, microsecond=0)
-    market_close = now.replace(hour=16, minute=0, second=0, microsecond=0)
+    market_open = schedule.iloc[0]['market_open'].tz_convert(eastern)
+    market_close = schedule.iloc[0]['market_close'].tz_convert(eastern)
 
     return market_open <= now <= market_close
