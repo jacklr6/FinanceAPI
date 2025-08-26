@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import yfinance as yf
 from datetime import datetime
 import time
+import pytz
 
 app = Flask(__name__)
 
@@ -53,7 +54,8 @@ def get_stock_price():
             'zip': info.get('zip'),
             'country': info.get('country'),
             'timestamp': info.get('regularMarketTime'),
-            'last_close_from_history': last_close
+            'last_close_from_history': last_close,
+            'market_open': is_market_open()
         }
 
         return jsonify(data)
@@ -94,3 +96,14 @@ def get_stock_history():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+def is_market_open():
+    eastern = pytz.timezone('US/Eastern')
+    now = datetime.now(eastern)
+
+    if now.weekday() >= 5:  # Sat/Sun
+        return False
+
+    market_open = now.replace(hour=9, minute=30, second=0, microsecond=0)
+    market_close = now.replace(hour=16, minute=0, second=0, microsecond=0)
+
+    return market_open <= now <= market_close
