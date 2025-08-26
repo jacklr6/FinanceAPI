@@ -56,7 +56,7 @@ def get_stock_price():
             'country': info.get('country'),
             'timestamp': info.get('regularMarketTime'),
             'last_close_from_history': last_close,
-            'market_open': is_market_open()
+            'market_open': market_open_now()
         }
 
         return jsonify(data)
@@ -97,8 +97,7 @@ def get_stock_history():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/market-status')
-def is_market_open():
+def market_open_now():
     nyse = mcal.get_calendar('NYSE')
     eastern = pytz.timezone('US/Eastern')
     now = datetime.now(eastern)
@@ -111,3 +110,7 @@ def is_market_open():
     market_close = schedule.iloc[0]['market_close'].tz_convert(eastern)
 
     return market_open <= now <= market_close
+
+@app.route('/market-status')
+def market_status():
+    return jsonify({'market_open': market_open_now()})
