@@ -97,6 +97,7 @@ def get_stock_history():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/market-status')
 def is_market_open():
     nyse = mcal.get_calendar('NYSE')
     eastern = pytz.timezone('US/Eastern')
