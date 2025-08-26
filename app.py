@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import yfinance as yf
 from datetime import datetime
 import time
+import pytz
 import pandas_market_calendars as mcal
 
 app = Flask(__name__)
